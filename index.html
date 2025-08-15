@@ -40,17 +40,17 @@
     .bottom button {
       height: 100%; width: 100%; border: 0; margin: 0; padding: 0;
       border-radius: 0; cursor: pointer;
-      background: var(--accent); color: #081012; /* high contrast */
       font-size: clamp(22px, 6.5vw, 42px);
       font-weight: 900;
     }
     .bottom button:disabled { background: #2a2f36; color: #6b7280; cursor: not-allowed; }
 
     /* Page 1 (Input) */
+    .bottom #goBtn { background: var(--accent); color: #081012; }
     .p1-main {
       flex: 1 1 auto;
       display: flex; align-items: center; justify-content: center;
-      padding: 2.5vh 4vw; /* visual breathing room */
+      padding: 2.5vh 4vw;
     }
     .form {
       width: 100%; max-width: 900px;
@@ -73,7 +73,6 @@
     .p2-main {
       flex: 1 1 auto;
       display: flex; flex-direction: column;
-      /* Fill all space above the bottom bar with zero gaps */
     }
     .tempo-list { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0; }
     .tempo-btn {
@@ -90,7 +89,7 @@
     .tempo-btn:nth-child(odd){ background: #10141c; }
     .tempo-btn:active { filter: brightness(1.25); }
 
-    /* Flash indicator overlay inside each button */
+    /* Flash indicator overlay */
     .flash-layer {
       position: absolute; inset: 0;
       background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22), transparent 55%);
@@ -98,28 +97,24 @@
       transition: opacity 120ms ease-out;
     }
     .flash-layer.show { opacity: 1; }
-
-    /* Tiny live dot (top-right) shows whether that row is armed) */
     .live-dot {
       position: absolute; top: 10px; right: 12px; width: 14px; height: 14px;
       border-radius: 999px; background: #374151; box-shadow: 0 0 0 2px rgba(0,0,0,0.35) inset;
     }
     .tempo-btn.active .live-dot { background: var(--accent-2); }
 
-    /* Back button styled like bottom GO */
-    .back-btn { background: #334155; color: #e5e7eb; }
+    /* Back button in dark mode */
+    .back-btn { background: #1f2430; color: var(--fg); }
 
-    /* Utility */
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 <div class="app" id="app">
-  <!-- Page 1: Input -->
-  <section class="page active" id="page1" aria-labelledby="page1-title">
+  <section class="page active" id="page1">
     <main class="p1-main">
       <div class="form">
-        <div class="label" id="page1-title">Enter comma-separated BPM</div>
+        <div class="label">Enter comma-separated BPM</div>
         <textarea id="bpmInput" class="textbox" placeholder="e.g. 60, 120, 90"></textarea>
         <div class="help" id="validationMsg">&nbsp;</div>
       </div>
@@ -129,10 +124,9 @@
     </div>
   </section>
 
-  <!-- Page 2: Tempo buttons -->
-  <section class="page" id="page2" aria-labelledby="page2-title">
+  <section class="page" id="page2">
     <main class="p2-main">
-      <div class="tempo-list" id="tempoList" aria-live="polite" aria-label="Tempo buttons"></div>
+      <div class="tempo-list" id="tempoList"></div>
     </main>
     <div class="bottom">
       <button id="backBtn" class="back-btn">BACK</button>
@@ -143,151 +137,57 @@
 <script>
 (function(){
   const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-
-  const page1 = $('#page1');
-  const page2 = $('#page2');
   const bpmInput = $('#bpmInput');
   const validationMsg = $('#validationMsg');
   const goBtn = $('#goBtn');
   const backBtn = $('#backBtn');
   const tempoList = $('#tempoList');
 
-  let wakeLock = null;
+  let wakeLock=null;
   async function requestWakeLock(){
-    try {
-      if ('wakeLock' in navigator) {
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { /* optional UI hook */ });
-      }
-    } catch (err) {
-      // Likely unsupported or denied. Gracefully ignore.
-    }
+    try { if('wakeLock' in navigator) wakeLock=await navigator.wakeLock.request('screen'); } catch(e){}
   }
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && wakeLock === null) {
-      requestWakeLock();
-    }
-  });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&wakeLock===null)requestWakeLock(); });
   requestWakeLock();
 
-  // Parse & validate input
   function parseBPMs(text){
-    const raw = text.split(',').map(s => s.trim()).filter(Boolean);
-    if (raw.length === 0) return { ok:false, list:[], message: 'Enter at least one BPM.' };
-    const nums = [];
-    for (const r of raw){
-      if (!/^\d+(?:\.\d+)?$/.test(r)) {
-        return { ok:false, list:[], message: `Invalid number: "${r}"` };
-      }
-      const v = parseFloat(r);
-      if (!isFinite(v) || v <= 0) {
-        return { ok:false, list:[], message: `BPM must be > 0: "${r}"` };
-      }
+    const raw=text.split(',').map(s=>s.trim()).filter(Boolean);
+    if(!raw.length)return{ok:false,list:[],message:'Enter at least one BPM.'};
+    const nums=[];
+    for(const r of raw){
+      if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],message:`Invalid number: "${r}"`};
+      const v=parseFloat(r); if(!isFinite(v)||v<=0)return{ok:false,list:[],message:`BPM must be > 0: "${r}"`};
       nums.push(v);
     }
-    return { ok:true, list:nums, message: /*`Looks good: ${nums.join(', ')}`*/ '' };
+    return{ok:true,list:nums,message:`Looks good: ${nums.join(', ')}`};
   }
-
   function updateValidation(){
-    const {ok, message} = parseBPMs(bpmInput.value);
-    goBtn.disabled = !ok;
-    validationMsg.textContent = message || '\u00A0';
-    validationMsg.style.color = ok ? 'var(--muted)' : 'var(--danger)';
+    const {ok,message}=parseBPMs(bpmInput.value);
+    goBtn.disabled=!ok;
+    validationMsg.textContent=message||'\u00A0';
+    validationMsg.style.color=ok?'var(--muted)':'var(--danger)';
   }
-
-  bpmInput.addEventListener('input', updateValidation);
-  bpmInput.addEventListener('blur', updateValidation);
+  bpmInput.addEventListener('input',updateValidation);
+  bpmInput.addEventListener('blur',updateValidation);
   updateValidation();
 
-  // Navigation
   function showPage(which){
-    for (const p of $$('.page')) p.classList.remove('active');
-    (which === 1 ? page1 : page2).classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelector(which===1?'#page1':'#page2').classList.add('active');
   }
 
-  goBtn.addEventListener('click', () => {
-    const {ok, list} = parseBPMs(bpmInput.value);
-    if (!ok) return;
-    buildTempoButtons(list);
-    showPage(2);
+  goBtn.addEventListener('click',()=>{
+    const {ok,list}=parseBPMs(bpmInput.value);
+    if(!ok)return; buildTempoButtons(list); showPage(2);
   });
+  backBtn.addEventListener('click',()=>{stopAllFlashes();tempoList.innerHTML='';showPage(1);});
 
-  backBtn.addEventListener('click', () => {
-    stopAllFlashes();
-    tempoList.innerHTML = '';
-    showPage(1);
-  });
-
-  // Flash logic per button
-  const timers = new Map(); // btn -> intervalId
-
-  function stopFlash(btn){
-    const id = timers.get(btn);
-    if (id) { clearInterval(id); timers.delete(btn); }
-    btn.classList.remove('active');
-  }
-  function stopAllFlashes(){
-    timers.forEach(id => clearInterval(id));
-    timers.clear();
-    $$('.tempo-btn').forEach(b => b.classList.remove('active'));
-  }
-
-  function startFlash(btn, bpm){
-    const ms = 60000 / bpm; // interval per beat
-    const flash = btn.querySelector('.flash-layer');
-
-    // Safety: stop any prior
-    stopFlash(btn);
-
-    const intervalId = setInterval(() => {
-      flash.classList.add('show');
-      // brief blink window (~120ms)
-      setTimeout(() => flash.classList.remove('show'), 120);
-    }, ms);
-    timers.set(btn, intervalId);
-    btn.classList.add('active');
-
-    // Immediate first pulse so user sees it right away
-    flash.classList.add('show');
-    setTimeout(() => flash.classList.remove('show'), 140);
-  }
-
-  function toggleFlash(btn){
-    if (timers.has(btn)) {
-      stopFlash(btn);
-    } else {
-      const bpm = parseFloat(btn.dataset.bpm);
-      startFlash(btn, bpm);
-    }
-  }
-
-  function buildTempoButtons(list){
-    tempoList.innerHTML = '';
-    // Create one button per BPM, each filling equal vertical space with no margins/padding
-    for (const bpm of list){
-      const btn = document.createElement('button');
-      btn.className = 'tempo-btn';
-      btn.type = 'button';
-      btn.dataset.bpm = String(bpm);
-      btn.setAttribute('aria-pressed', 'false');
-      btn.innerHTML = `
-        <div class="flash-layer"></div>
-        <div class="live-dot" aria-hidden="true"></div>
-        <div class="label">${bpm} BPM</div>
-      `;
-      btn.addEventListener('click', () => {
-        const active = timers.has(btn);
-        toggleFlash(btn);
-        btn.setAttribute('aria-pressed', String(!active));
-      }, { passive: true });
-      tempoList.appendChild(btn);
-    }
-  }
-
-  // Optimize for mobile UX
-  // Prevent iOS rubber-band scroll effects inside the app by keeping the layout simple.
-  document.addEventListener('gesturestart', e => e.preventDefault());
+  const timers=new Map();
+  function stopFlash(btn){const id=timers.get(btn);if(id){clearInterval(id);timers.delete(btn);}btn.classList.remove('active');}
+  function stopAllFlashes(){timers.forEach(id=>clearInterval(id));timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
+  function startFlash(btn,bpm){const ms=60000/bpm;const flash=btn.querySelector('.flash-layer');stopFlash(btn);const intervalId=setInterval(()=>{flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),120);},ms);timers.set(btn,intervalId);btn.classList.add('active');flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),140);}
+  function toggleFlash(btn){timers.has(btn)?stopFlash(btn):startFlash(btn,parseFloat(btn.dataset.bpm));}
+  function buildTempoButtons(list){tempoList.innerHTML='';for(const bpm of list){const btn=document.createElement('button');btn.className='tempo-btn';btn.type='button';btn.dataset.bpm=String(bpm);btn.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;btn.addEventListener('click',()=>toggleFlash(btn),{passive:true});tempoList.appendChild(btn);}}
 })();
 </script>
 </body>
