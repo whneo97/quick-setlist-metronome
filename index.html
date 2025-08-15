@@ -212,18 +212,36 @@
 
   function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(n===1?'#page1':'#page2').classList.add('active');}
   const timers=new Map();
-  function stopFlash(b){const id=timers.get(b);if(id){clearInterval(id);timers.delete(b);}b.classList.remove('active');}
-  function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
+  function stopFlash(b){
+    const obj=timers.get(b);
+    if(obj&&obj.cancel){obj.cancel();timers.delete(b);}
+    b.classList.remove('active');
+  }
+  function stopAllFlashes(){timers.forEach(obj=>obj.cancel&&obj.cancel());timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'))}
   function startFlash(b,bpm){
+    stopFlash(b);
     const ms=60000/bpm;
     const f=b.querySelector('.flash-layer');
-    stopFlash(b);
-    const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);
-    timers.set(b,id);
+    let running=true;
+    let next=performance.now();
+    function loop(){
+      if(!running) return;
+      const now=performance.now();
+      if(now>=next){
+        f.classList.add('show');
+        setTimeout(()=>f.classList.remove('show'),120);
+        next+=ms;
+        // In case of drift, catch up
+        if(now-next>ms) next=now+ms;
+      }
+      if(running) requestAnimationFrame(loop);
+    }
+    timers.set(b,{cancel:()=>{running=false;}});
     b.classList.add('active');
     f.classList.add('show');
     setTimeout(()=>f.classList.remove('show'),140);
-  }  
+    requestAnimationFrame(loop);
+  }
   function toggleFlash(b){timers.has(b)?stopFlash(b):startFlash(b,parseFloat(b.dataset.bpm));}
   function buildTempoButtons(list){
     tempoList.innerHTML='';
