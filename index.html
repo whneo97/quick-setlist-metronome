@@ -111,6 +111,13 @@
     return{ok:true,list:nums,message:''};
   }
 
+  function inputsEqual(a,b){
+    const normA=a.split(',').map(s=>s.trim()).filter(Boolean);
+    const normB=b.split(',').map(s=>s.trim()).filter(Boolean);
+    if(normA.length!==normB.length)return false;
+    return normA.every((v,i)=>v===normB[i]);
+  }
+
   function updateValidation(){
     const {ok,message}=parseBPMs(bpmInput.value);
     goBtn.disabled=!ok;
@@ -124,10 +131,11 @@
   goBtn.onclick=()=>{
     const {ok,list}=parseBPMs(bpmInput.value);
     if(!ok){updateValidation();return;}
-    const name=prompt('Preset name?','My preset');
-    if(name){
-      const exists=presets.some(p=>p.name===name && p.value===bpmInput.value);
-      if(!exists||confirm('A preset with the same name and BPM exists. Create duplicate?')){
+    const duplicateExists=presets.some(p=>inputsEqual(p.value,bpmInput.value));
+    let name=null;
+    if(!duplicateExists){
+      name=prompt('Preset name?','My preset');
+      if(name){
         presets.push({name,value:bpmInput.value});
         savePresets();
       }
