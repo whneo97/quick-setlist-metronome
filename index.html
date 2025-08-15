@@ -26,19 +26,20 @@
     #goBtn{background:var(--accent);color:#081012;}
     .back-btn{background:#1f2430;color:var(--fg);}
     .p1-main{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 4vw;}
-    .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.5vh;}
+    .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.2vh;}
     .label{text-align:center;font-size:clamp(16px,3.8vw,22px);color:var(--muted);}
-    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}
+    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}    
+    .error-msg{display:none;text-align:center;color:var(--danger);font-size:clamp(12px,3.2vw,16px);}    
     .preset-list{max-height:30vh;overflow-y:auto;background:#11151c;border-radius:var(--radius);padding:1vh;display:none;flex-direction:column;gap:1vh;}
     .preset-item{display:flex;justify-content:space-between;align-items:center;background:#181c24;padding:1vh;border-radius:var(--radius);}
-    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}
+    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}    
     .tempo-list{flex:1;display:flex;flex-direction:column;}
     .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;border:none;}
     .tempo-btn:nth-child(odd){background:#10141c;}
     .flash-layer{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,0.22),transparent 55%);opacity:0;pointer-events:none;transition:opacity 120ms ease-out;}
     .flash-layer.show{opacity:1;}
     .live-dot{position:absolute;top:10px;right:12px;width:14px;height:14px;border-radius:999px;background:#374151;}
-    .tempo-btn.active .live-dot{background:var(--accent-2);}
+    .tempo-btn.active .live-dot{background:var(--accent-2);}    
   </style>
 </head>
 <body>
@@ -48,6 +49,7 @@
       <div class="form">
         <div class="label">Enter comma-separated BPM</div>
         <textarea id="bpmInput" class="textbox" placeholder="e.g. 60,120,90"></textarea>
+        <div id="errorMsg" class="error-msg" role="alert" aria-live="polite"></div>
         <div class="preset-list" id="presetList"></div>
       </div>
     </main>
@@ -66,6 +68,7 @@
   const backBtn=document.querySelector('#backBtn');
   const tempoList=document.querySelector('#tempoList');
   const presetList=document.querySelector('#presetList');
+  const errorMsg=document.querySelector('#errorMsg');
 
   let presets=JSON.parse(localStorage.getItem('bpmPresets')||'[]');
 
@@ -86,21 +89,35 @@
 
   function parseBPMs(txt){
     const raw=txt.split(',').map(s=>s.trim()).filter(Boolean);
-    if(!raw.length)return{ok:false,list:[]};
+    if(!raw.length)return{ok:false,list:[],message:'Enter at least one BPM.'};
     const nums=[];
-    for(const r of raw){if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[]};const v=parseFloat(r);if(!(v>0))return{ok:false,list:[]};nums.push(v);}return{ok:true,list:nums};}
+    for(const r of raw){
+      if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],message:`Invalid number: "${r}"`};
+      const v=parseFloat(r);
+      if(!(v>0))return{ok:false,list:[],message:`BPM must be > 0: "${r}"`};
+      nums.push(v);
+    }
+    return{ok:true,list:nums,message:''};
+  }
 
   function updateValidation(){
-    const {ok}=parseBPMs(bpmInput.value);
+    const {ok,message}=parseBPMs(bpmInput.value);
     goBtn.disabled=!ok;
+    if(ok){
+      errorMsg.textContent='';
+      errorMsg.style.display='none';
+    }else{
+      errorMsg.textContent=message;
+      errorMsg.style.display='block';
+    }
   }
-  bpmInput.oninput=updateValidation;
+  bpmInput.addEventListener('input',updateValidation);
   updateValidation();
   renderPresets();
 
   goBtn.onclick=()=>{
     const {ok,list}=parseBPMs(bpmInput.value);
-    if(!ok)return;
+    if(!ok){updateValidation();return;}
     const name=prompt('Preset name?','My preset');
     if(name)presets.push({name,value:bpmInput.value}),savePresets();
     buildTempoButtons(list);showPage(2);
@@ -111,11 +128,11 @@
   const timers=new Map();
   function stopFlash(b){const id=timers.get(b);if(id){clearInterval(id);timers.delete(b);}b.classList.remove('active');}
   function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
-  function startFlash(b,bpm){const ms=60000/bpm;const f=b.querySelector('.flash-layer');stopFlash(b);const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);timers.set(b,id);b.classList.add('active');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),140);}
+  function startFlash(b,bpm){const ms=60000/bpm;const f=b.querySelector('.flash-layer');stopFlash(b);const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);timers.set(b,id);b.classList.add('active');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),140);}  
   function toggleFlash(b){timers.has(b)?stopFlash(b):startFlash(b,parseFloat(b.dataset.bpm));}
   function buildTempoButtons(list){tempoList.innerHTML='';list.forEach(bpm=>{const b=document.createElement('button');b.className='tempo-btn';b.dataset.bpm=bpm;b.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;b.onclick=()=>toggleFlash(b);tempoList.appendChild(b);});}
 
-  if('wakeLock' in navigator){navigator.wakeLock.request('screen').catch(()=>{});}
+  if('wakeLock' in navigator){navigator.wakeLock.request('screen').catch(()=>{});}  
 })();
 </script>
 </body>
