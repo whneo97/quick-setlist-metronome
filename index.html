@@ -26,7 +26,7 @@
     .page{display:none;height:100%}
     .page.active{display:flex;flex-direction:column;min-height:100%}
     .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%}
-    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;transition:background 0.2s ease,color 0.2s ease;font-family:'Oswald',sans-serif;}
+    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(20px,5vw,38px);font-weight:900;transition: 0.2s ease,color 0.2s ease;font-family:'Oswald',sans-serif;}
     #goBtn{background:var(--accent);color:#081012;}
     #goBtn:disabled{background:var(--disabled-bg);color:var(--disabled-color);cursor:not-allowed;}
     .back-btn{background:#1f2430;color:var(--fg);}
@@ -45,7 +45,7 @@
     .preset-item{display:flex;align-items:center;justify-content:space-between;gap:1.2rem;background:#181c24;padding:1vh;border-radius:var(--radius);}
     .preset-info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .preset-item.invalid .preset-info{color:var(--danger);}
-    .preset-actions{display:flex;gap:4rem;flex-shrink:0;}
+    .preset-actions{display:flex;gap:clamp(1rem,6vw,3.5rem);flex-shrink:0;}
     .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);font-family:'Roboto','Roboto Mono',sans-serif;}    
     .preset-item.invalid button.load-btn{color:#555;pointer-events:none;}
     .tempo-container{flex:1;display:flex;flex-direction:column;overflow:hidden;}
