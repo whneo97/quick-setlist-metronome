@@ -103,6 +103,16 @@
     <div class="bottom"><button id="backBtn" class="back-btn">BACK</button></div>
   </section>
 </div>
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div id="modalBox" style="background:#181c24;color:#e8e8ee;padding:2em 1.5em;border-radius:18px;max-width:90vw;box-shadow:0 4px 32px #000a;min-width:240px;">
+    <div id="modalMsg" style="margin-bottom:1.2em;"></div>
+    <input id="modalInput" style="width:100%;font-size:1.1em;padding:0.5em;margin-bottom:1em;display:none;background:#12141a;color:#e8e8ee;border:1.5px solid #333;border-radius:8px;" />
+    <div style="display:flex;gap:1em;justify-content:flex-end;">
+      <button id="modalCancel" style="background:none;border:none;color:#ef4444;font-size:1em;">Cancel</button>
+      <button id="modalOk" style="background:var(--accent);border:none;color:#081012;font-size:1em;padding:0.4em 1.2em;border-radius:8px;">OK</button>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
   const bpmInput=document.querySelector('#bpmInput');
@@ -126,8 +136,19 @@
       const info=document.createElement('div');info.className='preset-info';info.textContent=`${p.name}: ${p.value}`;
       const actions=document.createElement('div');actions.className='preset-actions';
       const loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.className='load-btn';loadBtn.onclick=()=>{bpmInput.value=p.value;updateValidation();};
-      const editBtn=document.createElement('button');editBtn.textContent='Edit';editBtn.onclick=()=>{const nv=prompt('Edit BPM list',p.value);if(nv!==null){p.value=nv;p.name=prompt('Preset name',p.name)||p.name;savePresets();}};
-      const delBtn=document.createElement('button');delBtn.textContent='Del';delBtn.onclick=()=>{if(confirm('Delete this preset?')){presets.splice(i,1);savePresets();}};
+      const editBtn=document.createElement('button');editBtn.textContent='Edit';editBtn.onclick=async()=>{
+        const nv = await showModal({message:'Edit BPM list',input:true,defaultValue:p.value});
+        if(nv!==false){
+          p.value = nv;
+          const newName = await showModal({message:'Preset name',input:true,defaultValue:p.name});
+          if(newName!==false) p.name = newName;
+          savePresets();
+        }
+      };
+      const delBtn=document.createElement('button');delBtn.textContent='Del';delBtn.onclick=async()=>{
+        const confirm = await showModal({message:'Delete this preset?',input:false,okText:'Delete',cancelText:'Cancel'});
+        if(confirm) { presets.splice(i,1); savePresets(); }
+      };
       if(!ok)loadBtn.disabled=true;
       actions.append(loadBtn,editBtn,delBtn);
       div.append(info,actions);
@@ -165,13 +186,13 @@
   updateValidation();
   renderPresets();
 
-  goBtn.onclick=()=>{
+  goBtn.onclick=async()=>{
     const {ok,list}=parseBPMs(bpmInput.value);
     if(!ok){updateValidation();return;}
     const duplicateExists=presets.some(p=>inputsEqual(p.value,bpmInput.value));
     let name=null;
     if(!duplicateExists){
-      name=prompt('Preset name?','My preset');
+      name=await showModal({message:'Preset name?',input:true,defaultValue:'My preset'});
       if(name){
         presets.push({name,value:bpmInput.value});
         savePresets();
@@ -248,6 +269,35 @@
     document.addEventListener('webkitfullscreenchange',updateFullscreenBtn);
     document.addEventListener('msfullscreenchange',updateFullscreenBtn);
     updateFullscreenBtn();
+  }
+
+  // --- Modal logic ---
+  function showModal({message,input=false,defaultValue='',okText='OK',cancelText='Cancel'}) {
+    return new Promise(resolve=>{
+      const overlay = document.getElementById('modalOverlay');
+      const msg = document.getElementById('modalMsg');
+      const inp = document.getElementById('modalInput');
+      const ok = document.getElementById('modalOk');
+      const cancel = document.getElementById('modalCancel');
+      msg.textContent = message;
+      inp.style.display = input ? '' : 'none';
+      inp.value = defaultValue;
+      ok.textContent = okText;
+      cancel.textContent = cancelText;
+      overlay.style.display = 'flex';
+      if(input) inp.focus();
+      function cleanup(val) {
+        overlay.style.display = 'none';
+        ok.onclick = cancel.onclick = overlay.onkeydown = null;
+        resolve(val);
+      }
+      ok.onclick = ()=>cleanup(input ? inp.value : true);
+      cancel.onclick = ()=>cleanup(false);
+      overlay.onkeydown = e=>{
+        if(e.key==='Escape') cleanup(false);
+        if(e.key==='Enter' && input) cleanup(inp.value);
+      };
+    });
   }
 })();
 </script>
