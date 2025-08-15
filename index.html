@@ -6,6 +6,7 @@
   <title>Custom Metronome (Mobile)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Roboto:wght@900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700;900&display=swap');
     :root{
       --bg: #0b0b0f;
       --fg: #e8e8ee;
@@ -25,14 +26,14 @@
     .page{display:none;height:100%}
     .page.active{display:flex;flex-direction:column;min-height:100%}
     .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%}
-    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;transition:background 0.2s ease,color 0.2s ease;}
+    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;transition:background 0.2s ease,color 0.2s ease;font-family:'Oswald',sans-serif;}
     #goBtn{background:var(--accent);color:#081012;}
     #goBtn:disabled{background:var(--disabled-bg);color:var(--disabled-color);cursor:not-allowed;}
     .back-btn{background:#1f2430;color:var(--fg);}
     .p1-main{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 4vw;}
     .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.2vh;}
     .label{text-align:center;font-size:clamp(16px,3.8vw,22px);color:var(--muted);}
-    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);overflow-y:auto;scrollbar-color:#555 #12141a;scrollbar-width:thin;}
+    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);overflow-y:auto;scrollbar-color:#555 #12141a;scrollbar-width:thin}
     .textbox::-webkit-scrollbar{width:8px;}
     .textbox::-webkit-scrollbar-track{background:#12141a;}
     .textbox::-webkit-scrollbar-thumb{background:#555;border-radius:4px;}
@@ -45,7 +46,7 @@
     .preset-info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .preset-item.invalid .preset-info{color:var(--danger);}
     .preset-actions{display:flex;gap:4rem;flex-shrink:0;}
-    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}    
+    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);font-family:'Roboto','Roboto Mono',sans-serif;}    
     .preset-item.invalid button.load-btn{color:#555;pointer-events:none;}
     .tempo-container{flex:1;display:flex;flex-direction:column;overflow:hidden;}
     .preset-titles{height:var(--preset-title-height);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3.5vw,20px);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -54,7 +55,7 @@
     .tempo-scroll::-webkit-scrollbar-track{background:#141821;}
     .tempo-scroll::-webkit-scrollbar-thumb{background:#555;border-radius:4px;}
     .tempo-list{display:flex;flex-direction:column;min-height:100%;}
-    .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;border:none;}
+    .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;border:none;font-family:'Oswald',sans-serif;}
     .tempo-btn:nth-child(odd){background:#10141c;}
     .flash-layer{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,0.22),transparent 55%);opacity:0;pointer-events:none;transition:opacity 120ms ease-out;}
     .flash-layer.show{opacity:1;}
