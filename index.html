@@ -31,8 +31,12 @@
     .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}    
     .error-msg{display:none;text-align:center;color:var(--danger);font-size:clamp(12px,3.2vw,16px);}    
     .preset-list{max-height:30vh;overflow-y:auto;background:#11151c;border-radius:var(--radius);padding:1vh;display:none;flex-direction:column;gap:1vh;}
-    .preset-item{display:flex;justify-content:space-between;align-items:center;background:#181c24;padding:1vh;border-radius:var(--radius);}
+    .preset-item{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;background:#181c24;padding:1vh;border-radius:var(--radius);}
+    .preset-info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .preset-item.invalid .preset-info{color:var(--danger);}
+    .preset-actions{display:flex;gap:0.5rem;flex-shrink:0;}
     .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}    
+    .preset-item.invalid button.load-btn{color:#555;pointer-events:none;}
     .tempo-list{flex:1;display:flex;flex-direction:column;}
     .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;border:none;}
     .tempo-btn:nth-child(odd){background:#10141c;}
@@ -78,12 +82,17 @@
     if(presets.length===0){presetList.style.display='none';return;}
     presetList.style.display='flex';
     presets.forEach((p,i)=>{
-      const div=document.createElement('div');div.className='preset-item';
-      div.innerHTML=`<span>${p.name}: ${p.value}</span>`;
-      const loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.onclick=()=>{bpmInput.value=p.value;updateValidation();};
+      const {ok}=parseBPMs(p.value);
+      const div=document.createElement('div');div.className='preset-item'+(ok?'':' invalid');
+      const info=document.createElement('div');info.className='preset-info';info.textContent=`${p.name}: ${p.value}`;
+      const actions=document.createElement('div');actions.className='preset-actions';
+      const loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.className='load-btn';loadBtn.onclick=()=>{bpmInput.value=p.value;updateValidation();};
       const editBtn=document.createElement('button');editBtn.textContent='Edit';editBtn.onclick=()=>{const nv=prompt('Edit BPM list',p.value);if(nv!==null){p.value=nv;p.name=prompt('Preset name',p.name)||p.name;savePresets();}};
       const delBtn=document.createElement('button');delBtn.textContent='Del';delBtn.onclick=()=>{if(confirm('Delete this preset?')){presets.splice(i,1);savePresets();}};
-      div.append(loadBtn,editBtn,delBtn);presetList.appendChild(div);
+      if(!ok)loadBtn.disabled=true;
+      actions.append(loadBtn,editBtn,delBtn);
+      div.append(info,actions);
+      presetList.appendChild(div);
     });
   }
 
@@ -103,13 +112,8 @@
   function updateValidation(){
     const {ok,message}=parseBPMs(bpmInput.value);
     goBtn.disabled=!ok;
-    if(ok){
-      errorMsg.textContent='';
-      errorMsg.style.display='none';
-    }else{
-      errorMsg.textContent=message;
-      errorMsg.style.display='block';
-    }
+    if(ok){errorMsg.textContent='';errorMsg.style.display='none';}
+    else{errorMsg.textContent=message;errorMsg.style.display='block';}
   }
   bpmInput.addEventListener('input',updateValidation);
   updateValidation();
