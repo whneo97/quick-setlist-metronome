@@ -9,104 +9,37 @@
       --bg: #0b0b0f;
       --fg: #e8e8ee;
       --muted: #9aa0aa;
-      --accent: #14b8a6; /* teal */
-      --accent-2: #8b5cf6; /* violet */
-      --danger: #ef4444; /* red */
-      --btn-height: 18dvh; /* bottom bar height */
+      --accent: #14b8a6;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --btn-height: 18dvh;
       --radius: 18px;
     }
-
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-weight: 800; /* bold-looking */
-      letter-spacing: 0.02em;
-    }
-    .app { height: 100dvh; display: flex; flex-direction: column; }
-
-    .page { display: none; height: 100%; }
-    .page.active { display: flex; flex-direction: column; min-height: 100%; }
-
-    /* Shared bottom fixed button */
-    .bottom {
-      margin: 0; padding: 0; border: 0; outline: none;
-      position: sticky; bottom: 0; left: 0; right: 0;
-      height: var(--btn-height); width: 100%;
-    }
-    .bottom button {
-      height: 100%; width: 100%; border: 0; margin: 0; padding: 0;
-      border-radius: 0; cursor: pointer;
-      font-size: clamp(22px, 6.5vw, 42px);
-      font-weight: 900;
-    }
-    .bottom button:disabled { background: #2a2f36; color: #6b7280; cursor: not-allowed; }
-
-    /* Page 1 (Input) */
-    .bottom #goBtn { background: var(--accent); color: #081012; }
-    .p1-main {
-      flex: 1 1 auto;
-      display: flex; align-items: center; justify-content: center;
-      padding: 2.5vh 4vw;
-    }
-    .form {
-      width: 100%; max-width: 900px;
-      display: flex; flex-direction: column; align-items: stretch; gap: 2.5vh;
-    }
-    .label { font-size: clamp(16px, 3.8vw, 22px); color: var(--muted); text-align: center; }
-    .textbox {
-      width: 100%;
-      min-height: 24dvh; height: min(40dvh, 55%);
-      background: #12141a; color: var(--fg);
-      border: 2px solid #1f2430; border-radius: var(--radius);
-      padding: 2.2vh 2.5vw;
-      font-size: clamp(24px, 6.8vw, 44px);
-      line-height: 1.25;
-      resize: none;
-    }
-    .help { text-align: center; font-size: clamp(12px, 3.2vw, 16px); color: var(--muted); }
-
-    /* Page 2 (Buttons) */
-    .p2-main {
-      flex: 1 1 auto;
-      display: flex; flex-direction: column;
-    }
-    .tempo-list { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0; }
-    .tempo-btn {
-      position: relative;
-      flex: 1 1 auto; width: 100%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0; padding: 0; border: 0; border-radius: 0;
-      background: #141821; color: var(--fg);
-      font-size: clamp(28px, 8vw, 60px);
-      font-weight: 900;
-      overflow: hidden;
-      user-select: none;
-    }
-    .tempo-btn:nth-child(odd){ background: #10141c; }
-    .tempo-btn:active { filter: brightness(1.25); }
-
-    /* Flash indicator overlay */
-    .flash-layer {
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22), transparent 55%);
-      opacity: 0; pointer-events: none;
-      transition: opacity 120ms ease-out;
-    }
-    .flash-layer.show { opacity: 1; }
-    .live-dot {
-      position: absolute; top: 10px; right: 12px; width: 14px; height: 14px;
-      border-radius: 999px; background: #374151; box-shadow: 0 0 0 2px rgba(0,0,0,0.35) inset;
-    }
-    .tempo-btn.active .live-dot { background: var(--accent-2); }
-
-    /* Back button in dark mode */
-    .back-btn { background: #1f2430; color: var(--fg); }
-
-    .hidden { display: none !important; }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Arial;font-weight:800;letter-spacing:0.02em;}
+    .app{height:100dvh;display:flex;flex-direction:column;}
+    .page{display:none;height:100%;}
+    .page.active{display:flex;flex-direction:column;min-height:100%;}
+    .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%;}
+    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;}
+    .bottom button:disabled{background:#2a2f36;color:#6b7280;}
+    #goBtn{background:var(--accent);color:#081012;}
+    .back-btn{background:#1f2430;color:var(--fg);}
+    .p1-main{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 4vw;}
+    .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.5vh;}
+    .label{text-align:center;font-size:clamp(16px,3.8vw,22px);color:var(--muted);}
+    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}
+    .preset-list{max-height:30vh;overflow-y:auto;background:#11151c;border-radius:var(--radius);padding:1vh;display:flex;flex-direction:column;gap:1vh;}
+    .preset-item{display:flex;justify-content:space-between;align-items:center;background:#181c24;padding:1vh;border-radius:var(--radius);}
+    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}
+    .help{text-align:center;font-size:clamp(12px,3.2vw,16px);color:var(--muted);}
+    .tempo-list{flex:1;display:flex;flex-direction:column;}
+    .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;}
+    .tempo-btn:nth-child(odd){background:#10141c;}
+    .flash-layer{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,0.22),transparent 55%);opacity:0;pointer-events:none;transition:opacity 120ms ease-out;}
+    .flash-layer.show{opacity:1;}
+    .live-dot{position:absolute;top:10px;right:12px;width:14px;height:14px;border-radius:999px;background:#374151;}
+    .tempo-btn.active .live-dot{background:var(--accent-2);}
   </style>
 </head>
 <body>
@@ -115,79 +48,202 @@
     <main class="p1-main">
       <div class="form">
         <div class="label">Enter comma-separated BPM</div>
-        <textarea id="bpmInput" class="textbox" placeholder="e.g. 60, 120, 90"></textarea>
+        <textarea id="bpmInput" class="textbox" placeholder="e.g. 60,120,90"></textarea>
+        <div class="preset-list" id="presetList"></div>
         <div class="help" id="validationMsg">&nbsp;</div>
       </div>
     </main>
-    <div class="bottom">
-      <button id="goBtn" disabled>GO</button>
-    </div>
+    <div class="bottom"><button id="goBtn" disabled>GO</button></div>
   </section>
 
   <section class="page" id="page2">
-    <main class="p2-main">
-      <div class="tempo-list" id="tempoList"></div>
-    </main>
-    <div class="bottom">
-      <button id="backBtn" class="back-btn">BACK</button>
-    </div>
+    <main class="tempo-list" id="tempoList"></main>
+    <div class="bottom"><button id="backBtn" class="back-btn">BACK</button></div>
   </section>
 </div>
-
 <script>
 (function(){
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const bpmInput = $('#bpmInput');
-  const validationMsg = $('#validationMsg');
-  const goBtn = $('#goBtn');
-  const backBtn = $('#backBtn');
-  const tempoList = $('#tempoList');
+  const bpmInput=document.querySelector('#bpmInput');
+  const goBtn=document.querySelector('#goBtn');
+  const backBtn=document.querySelector('#backBtn');
+  const tempoList=document.querySelector('#tempoList');
+  const presetList=document.querySelector('#presetList');
+  const validationMsg=document.querySelector('#validationMsg');
 
-  let wakeLock=null;
-  async function requestWakeLock(){
-    try { if('wakeLock' in navigator) wakeLock=await navigator.wakeLock.request('screen'); } catch(e){}
+  let presets=JSON.parse(localStorage.getItem('bpmPresets')||'[]');
+
+  function savePresets(){localStorage.setItem('bpmPresets',JSON.stringify(presets));renderPresets();}
+  function renderPresets(){
+    presetList.innerHTML='';
+    presets.forEach((p,i)=>{
+      const div=document.createElement('div');div.className='preset-item';
+      div.innerHTML=`<span>${p.name}: ${p.value}</span>`;
+      const loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.onclick=()=>{bpmInput.value=p.value;updateValidation();};
+      const editBtn=document.createElement('button');editBtn.textContent='Edit';editBtn.onclick=()=>{const nv=prompt('Edit BPM list',p.value);if(nv!==null){p.value=nv;p.name=prompt('Preset name',p.name)||p.name;savePresets();}};
+      const delBtn=document.createElement('button');delBtn.textContent='Del';delBtn.onclick=()=>{presets.splice(i,1);savePresets();};
+      div.append(loadBtn,editBtn,delBtn);presetList.appendChild(div);
+    });
   }
-  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&wakeLock===null)requestWakeLock(); });
-  requestWakeLock();
 
-  function parseBPMs(text){
-    const raw=text.split(',').map(s=>s.trim()).filter(Boolean);
-    if(!raw.length)return{ok:false,list:[],message:'Enter at least one BPM.'};
+  function parseBPMs(txt){
+    const raw=txt.split(',').map(s=>s.trim()).filter(Boolean);
+    if(!raw.length)return{ok:false,list:[],msg:'Enter at least one BPM.'};
     const nums=[];
-    for(const r of raw){
-      if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],message:`Invalid number: "${r}"`};
-      const v=parseFloat(r); if(!isFinite(v)||v<=0)return{ok:false,list:[],message:`BPM must be > 0: "${r}"`};
-      nums.push(v);
-    }
-    return{ok:true,list:nums,message:`Looks good: ${nums.join(', ')}`};
-  }
+    for(const r of raw){if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],msg:`Invalid number: "${r}"`};const v=parseFloat(r);if(!(v>0))return{ok:false,list:[],msg:`BPM>0: "${r}"`};nums.push(v);}return{ok:true,list:nums,msg:`OK: ${nums.join(', ')}`};}
+
   function updateValidation(){
-    const {ok,message}=parseBPMs(bpmInput.value);
+    const {ok,msg}=parseBPMs(bpmInput.value);
     goBtn.disabled=!ok;
-    validationMsg.textContent=message||'\u00A0';
+    validationMsg.textContent=msg;
     validationMsg.style.color=ok?'var(--muted)':'var(--danger)';
   }
-  bpmInput.addEventListener('input',updateValidation);
-  bpmInput.addEventListener('blur',updateValidation);
+  bpmInput.oninput=updateValidation;
   updateValidation();
+  renderPresets();
 
-  function showPage(which){
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelector(which===1?'#page1':'#page2').classList.add('active');
+  goBtn.onclick=()=>{
+    const {ok,list}=parseBPMs(bpmInput.value);
+    if(!ok)return;
+    const name=prompt('Preset name?','My preset');
+    if(name)presets.push({name,value:bpmInput.value}),savePresets();
+    buildTempoButtons(list);showPage(2);
+  };
+  backBtn.onclick=()=>{stopAllFlashes();tempoList.innerHTML='';showPage(1);};
+
+  function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(n===1?'#page1':'#page2').classList.add('active');}
+  const timers=new Map();
+  function stopFlash(b){const id=timers.get(b);if(id){clearInterval(id);timers.delete(b);}b.classList.remove('active');}
+  function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
+  function startFlash(b,bpm){const ms=60000/bpm;const f=b.querySelector('.flash-layer');stopFlash(b);const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);timers.set(b,id);b.classList.add('active');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),140);}
+  function toggleFlash(b){timers.has(b)?stopFlash(b):startFlash(b,parseFloat(b.dataset.bpm));}
+  function buildTempoButtons(list){tempoList.innerHTML='';list.forEach(bpm=>{const b=document.createElement('button');b.className='tempo-btn';b.dataset.bpm=bpm;b.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;b.onclick=()=>toggleFlash(b);tempoList.appendChild(b);});}
+
+  if('wakeLock' in navigator){navigator.wakeLock.request('screen').catch(()=>{});}
+})();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Custom Metronome (Mobile)</title>
+  <style>
+    :root{
+      --bg: #0b0b0f;
+      --fg: #e8e8ee;
+      --muted: #9aa0aa;
+      --accent: #14b8a6;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --btn-height: 18dvh;
+      --radius: 18px;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Arial;font-weight:800;letter-spacing:0.02em;}
+    .app{height:100dvh;display:flex;flex-direction:column;}
+    .page{display:none;height:100%;}
+    .page.active{display:flex;flex-direction:column;min-height:100%;}
+    .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%;}
+    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;}
+    .bottom button:disabled{background:#2a2f36;color:#6b7280;}
+    #goBtn{background:var(--accent);color:#081012;}
+    .back-btn{background:#1f2430;color:var(--fg);}
+    .p1-main{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 4vw;}
+    .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.5vh;}
+    .label{text-align:center;font-size:clamp(16px,3.8vw,22px);color:var(--muted);}
+    .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}
+    .preset-list{max-height:30vh;overflow-y:auto;background:#11151c;border-radius:var(--radius);padding:1vh;display:flex;flex-direction:column;gap:1vh;}
+    .preset-item{display:flex;justify-content:space-between;align-items:center;background:#181c24;padding:1vh;border-radius:var(--radius);}
+    .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}
+    .help{text-align:center;font-size:clamp(12px,3.2vw,16px);color:var(--muted);}
+    .tempo-list{flex:1;display:flex;flex-direction:column;}
+    .tempo-btn{flex:1;width:100%;display:flex;align-items:center;justify-content:center;background:#141821;color:var(--fg);font-size:clamp(28px,8vw,60px);font-weight:900;position:relative;overflow:hidden;}
+    .tempo-btn:nth-child(odd){background:#10141c;}
+    .flash-layer{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,0.22),transparent 55%);opacity:0;pointer-events:none;transition:opacity 120ms ease-out;}
+    .flash-layer.show{opacity:1;}
+    .live-dot{position:absolute;top:10px;right:12px;width:14px;height:14px;border-radius:999px;background:#374151;}
+    .tempo-btn.active .live-dot{background:var(--accent-2);}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <section class="page active" id="page1">
+    <main class="p1-main">
+      <div class="form">
+        <div class="label">Enter comma-separated BPM</div>
+        <textarea id="bpmInput" class="textbox" placeholder="e.g. 60,120,90"></textarea>
+        <div class="preset-list" id="presetList"></div>
+        <div class="help" id="validationMsg">&nbsp;</div>
+      </div>
+    </main>
+    <div class="bottom"><button id="goBtn" disabled>GO</button></div>
+  </section>
+
+  <section class="page" id="page2">
+    <main class="tempo-list" id="tempoList"></main>
+    <div class="bottom"><button id="backBtn" class="back-btn">BACK</button></div>
+  </section>
+</div>
+<script>
+(function(){
+  const bpmInput=document.querySelector('#bpmInput');
+  const goBtn=document.querySelector('#goBtn');
+  const backBtn=document.querySelector('#backBtn');
+  const tempoList=document.querySelector('#tempoList');
+  const presetList=document.querySelector('#presetList');
+  const validationMsg=document.querySelector('#validationMsg');
+
+  let presets=JSON.parse(localStorage.getItem('bpmPresets')||'[]');
+
+  function savePresets(){localStorage.setItem('bpmPresets',JSON.stringify(presets));renderPresets();}
+  function renderPresets(){
+    presetList.innerHTML='';
+    presets.forEach((p,i)=>{
+      const div=document.createElement('div');div.className='preset-item';
+      div.innerHTML=`<span>${p.name}: ${p.value}</span>`;
+      const loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.onclick=()=>{bpmInput.value=p.value;updateValidation();};
+      const editBtn=document.createElement('button');editBtn.textContent='Edit';editBtn.onclick=()=>{const nv=prompt('Edit BPM list',p.value);if(nv!==null){p.value=nv;p.name=prompt('Preset name',p.name)||p.name;savePresets();}};
+      const delBtn=document.createElement('button');delBtn.textContent='Del';delBtn.onclick=()=>{presets.splice(i,1);savePresets();};
+      div.append(loadBtn,editBtn,delBtn);presetList.appendChild(div);
+    });
   }
 
-  goBtn.addEventListener('click',()=>{
-    const {ok,list}=parseBPMs(bpmInput.value);
-    if(!ok)return; buildTempoButtons(list); showPage(2);
-  });
-  backBtn.addEventListener('click',()=>{stopAllFlashes();tempoList.innerHTML='';showPage(1);});
+  function parseBPMs(txt){
+    const raw=txt.split(',').map(s=>s.trim()).filter(Boolean);
+    if(!raw.length)return{ok:false,list:[],msg:'Enter at least one BPM.'};
+    const nums=[];
+    for(const r of raw){if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],msg:`Invalid number: "${r}"`};const v=parseFloat(r);if(!(v>0))return{ok:false,list:[],msg:`BPM>0: "${r}"`};nums.push(v);}return{ok:true,list:nums,msg:`OK: ${nums.join(', ')}`};}
 
+  function updateValidation(){
+    const {ok,msg}=parseBPMs(bpmInput.value);
+    goBtn.disabled=!ok;
+    validationMsg.textContent=msg;
+    validationMsg.style.color=ok?'var(--muted)':'var(--danger)';
+  }
+  bpmInput.oninput=updateValidation;
+  updateValidation();
+  renderPresets();
+
+  goBtn.onclick=()=>{
+    const {ok,list}=parseBPMs(bpmInput.value);
+    if(!ok)return;
+    const name=prompt('Preset name?','My preset');
+    if(name)presets.push({name,value:bpmInput.value}),savePresets();
+    buildTempoButtons(list);showPage(2);
+  };
+  backBtn.onclick=()=>{stopAllFlashes();tempoList.innerHTML='';showPage(1);};
+
+  function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(n===1?'#page1':'#page2').classList.add('active');}
   const timers=new Map();
-  function stopFlash(btn){const id=timers.get(btn);if(id){clearInterval(id);timers.delete(btn);}btn.classList.remove('active');}
-  function stopAllFlashes(){timers.forEach(id=>clearInterval(id));timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
-  function startFlash(btn,bpm){const ms=60000/bpm;const flash=btn.querySelector('.flash-layer');stopFlash(btn);const intervalId=setInterval(()=>{flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),120);},ms);timers.set(btn,intervalId);btn.classList.add('active');flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),140);}
-  function toggleFlash(btn){timers.has(btn)?stopFlash(btn):startFlash(btn,parseFloat(btn.dataset.bpm));}
-  function buildTempoButtons(list){tempoList.innerHTML='';for(const bpm of list){const btn=document.createElement('button');btn.className='tempo-btn';btn.type='button';btn.dataset.bpm=String(bpm);btn.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;btn.addEventListener('click',()=>toggleFlash(btn),{passive:true});tempoList.appendChild(btn);}}
+  function stopFlash(b){const id=timers.get(b);if(id){clearInterval(id);timers.delete(b);}b.classList.remove('active');}
+  function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
+  function startFlash(b,bpm){const ms=60000/bpm;const f=b.querySelector('.flash-layer');stopFlash(b);const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);timers.set(b,id);b.classList.add('active');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),140);}
+  function toggleFlash(b){timers.has(b)?stopFlash(b):startFlash(b,parseFloat(b.dataset.bpm));}
+  function buildTempoButtons(list){tempoList.innerHTML='';list.forEach(bpm=>{const b=document.createElement('button');b.className='tempo-btn';b.dataset.bpm=bpm;b.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;b.onclick=()=>toggleFlash(b);tempoList.appendChild(b);});}
+
+  if('wakeLock' in navigator){navigator.wakeLock.request('screen').catch(()=>{});}
 })();
 </script>
 </body>
