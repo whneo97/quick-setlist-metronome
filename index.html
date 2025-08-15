@@ -335,5 +335,57 @@
   }
 })();
 </script>
+<script>
+async function generateIcon(size, letter, isDarkMode) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    if (isDarkMode) {
+        gradient.addColorStop(0, '#1e1e1e');
+        gradient.addColorStop(1, '#444444');
+    } else {
+        gradient.addColorStop(0, '#3367D6');
+        gradient.addColorStop(1, '#00BCD4');
+    }
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    // Text styling
+    ctx.fillStyle = isDarkMode ? '#ffffff' : '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Bold font with margins
+    const margin = size * 0.22; // 22% margin
+    let fontSize = size; 
+    ctx.font = `700 ${fontSize}px Oswald, Roboto, sans-serif`;
+
+    // Decrease font size until it fits within margin
+    while (ctx.measureText(letter).width > size - 2 * margin) {
+        fontSize -= 2;
+        ctx.font = `700 ${fontSize}px Oswald, Roboto, sans-serif`;
+    }
+
+    ctx.fillText(letter, size / 2, size / 2);
+    return canvas.toDataURL('image/png');
+}
+
+async function generateFavicon() {
+    // Generate icon
+    const icon192 = await generateIcon(192, "Q", true);
+
+    // Add favicon
+    const faviconLink = document.createElement('link');
+    faviconLink.rel = 'icon';
+    faviconLink.href = icon192;
+    faviconLink.type = 'image/png';
+    document.head.appendChild(faviconLink);
+}
+
+generateFavicon();
+</script>
 </body>
 </html>
