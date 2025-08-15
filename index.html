@@ -14,16 +14,18 @@
       --danger: #ef4444;
       --btn-height: 18dvh;
       --radius: 18px;
+      --disabled-bg: #2a2f36;
+      --disabled-color: #6b7280;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,Arial;font-weight:800;letter-spacing:0.02em;}
     .app{height:100dvh;display:flex;flex-direction:column;}
-    .page{display:none;height:100%;}
-    .page.active{display:flex;flex-direction:column;min-height:100%;}
-    .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%;}
-    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;}
-    .bottom button:disabled{background:#2a2f36;color:#6b7280;}
+    .page{display:none;height:100%}
+    .page.active{display:flex;flex-direction:column;min-height:100%}
+    .bottom{position:sticky;bottom:0;height:var(--btn-height);width:100%}
+    .bottom button{height:100%;width:100%;border:0;margin:0;font-size:clamp(22px,6.5vw,42px);font-weight:900;transition:background 0.2s ease,color 0.2s ease;}
     #goBtn{background:var(--accent);color:#081012;}
+    #goBtn:disabled{background:var(--disabled-bg);color:var(--disabled-color);cursor:not-allowed;}
     .back-btn{background:#1f2430;color:var(--fg);}
     .p1-main{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 4vw;}
     .form{width:100%;max-width:900px;display:flex;flex-direction:column;gap:2.2vh;}
@@ -31,10 +33,10 @@
     .textbox{width:100%;min-height:24dvh;background:#12141a;color:var(--fg);border:2px solid #1f2430;border-radius:var(--radius);padding:2.2vh;font-size:clamp(24px,6.8vw,44px);}    
     .error-msg{display:none;text-align:center;color:var(--danger);font-size:clamp(12px,3.2vw,16px);}    
     .preset-list{max-height:30vh;overflow-y:auto;background:#11151c;border-radius:var(--radius);padding:1vh;display:none;flex-direction:column;gap:1vh;}
-    .preset-item{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;background:#181c24;padding:1vh;border-radius:var(--radius);}
+    .preset-item{display:flex;align-items:center;justify-content:space-between;gap:1.2rem;background:#181c24;padding:1vh;border-radius:var(--radius);}
     .preset-info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .preset-item.invalid .preset-info{color:var(--danger);}
-    .preset-actions{display:flex;gap:0.5rem;flex-shrink:0;}
+    .preset-actions{display:flex;gap:4rem;flex-shrink:0;}
     .preset-item button{background:none;border:none;color:var(--accent);font-size:clamp(14px,3.5vw,20px);}    
     .preset-item.invalid button.load-btn{color:#555;pointer-events:none;}
     .tempo-list{flex:1;display:flex;flex-direction:column;}
@@ -51,7 +53,7 @@
   <section class="page active" id="page1">
     <main class="p1-main">
       <div class="form">
-        <div class="label">Enter comma-separated BPM</div>
+        <div class="label">Enter BPM values or choose a preset</div>
         <textarea id="bpmInput" class="textbox" placeholder="e.g. 60,120,90"></textarea>
         <div id="errorMsg" class="error-msg" role="alert" aria-live="polite"></div>
         <div class="preset-list" id="presetList"></div>
@@ -98,7 +100,7 @@
 
   function parseBPMs(txt){
     const raw=txt.split(',').map(s=>s.trim()).filter(Boolean);
-    if(!raw.length)return{ok:false,list:[],message:'Enter at least one BPM.'};
+    if(!raw.length)return{ok:false,list:[],message:''};
     const nums=[];
     for(const r of raw){
       if(!/^\d+(?:\.\d+)?$/.test(r))return{ok:false,list:[],message:`Invalid number: "${r}"`};
@@ -112,7 +114,7 @@
   function updateValidation(){
     const {ok,message}=parseBPMs(bpmInput.value);
     goBtn.disabled=!ok;
-    if(ok){errorMsg.textContent='';errorMsg.style.display='none';}
+    if(ok||bpmInput.value.trim()===''){errorMsg.textContent='';errorMsg.style.display='none';}
     else{errorMsg.textContent=message;errorMsg.style.display='block';}
   }
   bpmInput.addEventListener('input',updateValidation);
@@ -123,7 +125,13 @@
     const {ok,list}=parseBPMs(bpmInput.value);
     if(!ok){updateValidation();return;}
     const name=prompt('Preset name?','My preset');
-    if(name)presets.push({name,value:bpmInput.value}),savePresets();
+    if(name){
+      const exists=presets.some(p=>p.name===name && p.value===bpmInput.value);
+      if(!exists||confirm('A preset with the same name and BPM exists. Create duplicate?')){
+        presets.push({name,value:bpmInput.value});
+        savePresets();
+      }
+    }
     buildTempoButtons(list);showPage(2);
   };
   backBtn.onclick=()=>{stopAllFlashes();tempoList.innerHTML='';showPage(1);};
@@ -131,7 +139,7 @@
   function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(n===1?'#page1':'#page2').classList.add('active');}
   const timers=new Map();
   function stopFlash(b){const id=timers.get(b);if(id){clearInterval(id);timers.delete(b);}b.classList.remove('active');}
-  function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));}
+  function stopAllFlashes(){timers.forEach(clearInterval);timers.clear();document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'))}
   function startFlash(b,bpm){const ms=60000/bpm;const f=b.querySelector('.flash-layer');stopFlash(b);const id=setInterval(()=>{f.classList.add('show');setTimeout(()=>f.classList.remove('show'),120);},ms);timers.set(b,id);b.classList.add('active');f.classList.add('show');setTimeout(()=>f.classList.remove('show'),140);}  
   function toggleFlash(b){timers.has(b)?stopFlash(b):startFlash(b,parseFloat(b.dataset.bpm));}
   function buildTempoButtons(list){tempoList.innerHTML='';list.forEach(bpm=>{const b=document.createElement('button');b.className='tempo-btn';b.dataset.bpm=bpm;b.innerHTML=`<div class="flash-layer"></div><div class="live-dot"></div><div>${bpm} BPM</div>`;b.onclick=()=>toggleFlash(b);tempoList.appendChild(b);});}
