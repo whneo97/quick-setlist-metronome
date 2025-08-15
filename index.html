@@ -69,10 +69,26 @@
       color: var(--accent-2);
       outline: none;
     }
+    .version-badge {
+      position: fixed;
+      top: 0.7em;
+      left: 1em;
+      z-index: 1001;
+      background: rgba(20,24,33,0.85);
+      color: var(--muted);
+      font-size: 1.1em;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      padding: 0.18em 0.7em;
+      border-radius: 1em;
+      pointer-events: none;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
 <div class="app" id="app">
+  <div class="version-badge">v1.0</div>
   <section class="page active" id="page1">
     <main class="p1-main">
       <div class="form">
